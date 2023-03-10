@@ -38,18 +38,8 @@ currentforecast.to_excel("service/currentforecast.xlsx")
 url = "data_source/code.html"
 table = pd.read_html(url)[0]
 table.to_excel("data_source/code.xlsx")	
-
-#-----------------------------------------------------------------------------------
-#code = pd.read_excel('data_source/code.xlsx',skiprows=2)  #per salvataggio di Rende
-#code.rename(columns={"&nbsp": "vag"}, inplace=True)
-
-#code = pd.read_excel('data_source/code.xlsx',skiprows=[1, 3])
-code = pd.read_excel('data_source/code.xlsx',skiprows=1)
-code.rename(columns={"Unnamed: 0_level_1": "vag"}, inplace=True)
-#-----------------------------------------------------------------------------------
-if (code.rename(columns={"Unnamed: 0_level_1": "vag"}, inplace=True) ):
-	print("OK kaz")
-else: print("nokax")
+code = pd.read_excel('data_source/code.xlsx',skiprows=2)
+code.rename(columns={"&nbsp": "vag"}, inplace=True)
 # print('*** Code ***')
 # print(code)
 
@@ -72,8 +62,7 @@ matchonactivity.to_excel("service/matchonactivity.xlsx")
 
 reporthouronfcst=matchonfcst.merge(currentforecastonname,left_on='fcst_name',right_on='fcst_name')
 reporthouronfcst['Delta_Offerto']=(reporthouronfcst['Offerte']/reporthouronfcst[today] - 1)*100
-#reporthouronfcst=reporthouronfcst.drop([1, 'T.A.','Livello di Servizio %','% Cleared','hour'], axis=1) #export rende
-reporthouronfcst=reporthouronfcst.drop(['T.A.','Livello di Servizio %','% Cleared','hour'], axis=1)
+reporthouronfcst=reporthouronfcst.drop([1, 'T.A.','Livello di Servizio %','% Cleared','hour'], axis=1)
 reporthouronfcst.to_excel('output/reporthouronfcst.xlsx')
 
 print(reporthouronfcst)
