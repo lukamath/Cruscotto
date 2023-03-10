@@ -6,6 +6,7 @@ import openpyxl
 from datetime import datetime, timedelta
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotview import view
 
 #scrittura corretta della fascia
 now = datetime.now()	
@@ -29,7 +30,6 @@ currentforecast=dayforecast.loc[dayforecast["hour"]<=inthour]
 listacode = pd.read_excel('data_source/forecast.xlsx', sheet_name="Legenda Inbound")
 themap=pd.read_excel('data_source/map.xlsx', sheet_name="Map")
 minimap=themap.groupby(['fcst_name', 'Report Activity'], as_index=False).sum()
-#print(minimap)
 fcstmap=minimap[['fcst_name', 'Report Activity']].copy()
 
 currentforecast=currentforecast.merge(fcstmap, on='fcst_name')
@@ -38,6 +38,23 @@ currentforecast.to_excel("service/currentforecast.xlsx")
 url = "data_source/code.html"
 table = pd.read_html(url)[0]
 table.to_excel("data_source/code.xlsx")	
+
+#	*** dataframe for charts ***	#
+
+#dayforecastonfcst=dayforecast.loc[dayforecast['fcst_name']!='COV-NOTTE']
+dayforecastonfcst=dayforecast.merge(fcstmap, on='fcst_name')
+dayforecastonfcst.to_excel('service/dayforecastonfcst.xlsx')
+dayforecastonactivity=dayforecastonfcst.groupby(['Report Activity', 'hour'], as_index=False).sum()
+dayforecastonactivity.to_excel('service/dayforecastonactivity.xlsx')
+
+dayforecastmob=dayforecastonfcst.loc[dayforecastonfcst["Report Activity"]=='MOB']
+dayforecastmob=dayforecastmob.loc[dayforecastonfcst["Gestione CLT"]=='POST']
+dayforecastmob=dayforecastmob.groupby('hour').sum()	
+dayforecastmob.to_excel('output/dayforecastmob.xlsx')
+
+#	----------------------------	#
+
+
 
 #-----------------------------------------------------------------------------------
 #code = pd.read_excel('data_source/code.xlsx',skiprows=2)  #per salvataggio di Rende
@@ -87,6 +104,27 @@ print(reporthouronactivity)
 reporthouronfcst = reporthouronfcst.cumsum()
 
 #reporthouronfcst.plot();
-reporthouronfcst["Offerte"].plot(kind = 'line')
+
+dayrealmob=pd.read_excel('service/dayrealmob.xlsx')
+
+#dayforecastmob[today].plot(kind = 'line')
+#dayrealmob[today].plot(kind = 'line')
+
+#dayforecastmob=dayforecastmob.set_index("hour")
+#dayrealmob=dayrealmob.set_index("hour")
+
+dayrealmob.rename(columns={today: "Offerte"}, inplace=True)
+
+dayrealmob=dayrealmob.set_index('hour')
+
+fig, axs = plt.subplots(1)
+
+plt.plot(dayforecastmob[today])
+plt.plot(dayrealmob['Offerte'])
+plt.legend(['forecast','real'])
+plt.title('Mobile POST')
+
+
 
 plt.show()
+plt.gcf().canvas.set_window_title('This title does not last')
