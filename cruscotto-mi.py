@@ -72,15 +72,21 @@ matchonactivity.to_excel("service/matchonactivity.xlsx")
 
 reporthouronfcst=matchonfcst.merge(currentforecastonname,left_on='fcst_name',right_on='fcst_name')
 reporthouronfcst['Delta_Offerto']=(reporthouronfcst['Offerte']/reporthouronfcst[today] - 1)*100
-#reporthouronfcst=reporthouronfcst.drop([1, 'T.A.','Livello di Servizio %','% Cleared','hour'], axis=1) #export rende
-reporthouronfcst=reporthouronfcst.drop(['T.A.','Livello di Servizio %','% Cleared','hour'], axis=1)
+reporthouronfcst=reporthouronfcst.drop(['Unnamed: 0', 'T.A.','Livello di Servizio %','% Cleared','hour'], axis=1) #export rende
+#reporthouronfcst=reporthouronfcst.drop(['T.A.','Livello di Servizio %','% Cleared','hour'], axis=1)
 reporthouronfcst.to_excel('output/reporthouronfcst.xlsx')
 
-print(reporthouronfcst)
+reporthouronactivity=matchonactivity.merge(currentforecastonactivity,left_on='Report Activity', right_on='Report Activity')
+reporthouronactivity['Delta_Offerto']=(reporthouronactivity['Offerte']/reporthouronactivity[today] - 1)*100
+reporthouronactivity=reporthouronactivity.drop(['Unnamed: 0', 'T.A.','Livello di Servizio %','% Cleared','hour'], axis=1) #export rende
+reporthouronactivity.to_excel('output/reporthouronactivity.xlsx')
+
+#print(reporthouronfcst)
+print(reporthouronactivity)
 
 reporthouronfcst = reporthouronfcst.cumsum()
 
 #reporthouronfcst.plot();
-reporthouronfcst["Offerte"].plot(kind = 'hist')
+reporthouronfcst["Offerte"].plot(kind = 'line')
 
 plt.show()
