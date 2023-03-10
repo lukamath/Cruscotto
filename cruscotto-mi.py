@@ -64,11 +64,9 @@ dayforecastmob.to_excel('output/dayforecastmob.xlsx')
 code = pd.read_excel('data_source/code.xlsx',skiprows=1)
 code.rename(columns={"Unnamed: 0_level_1": "vag"}, inplace=True)
 #-----------------------------------------------------------------------------------
-if (code.rename(columns={"Unnamed: 0_level_1": "vag"}, inplace=True) ):
-	print("OK kaz")
-else: print("nokax")
-# print('*** Code ***')
-# print(code)
+code.to_excel("service/codemodified.xlsx")
+print('*** Code ***')
+print(code)
 
 #match=listacode.merge(code, left_on='VAG Instradamento',right_on='vag')
 match=themap.merge(code, left_on='Coda',right_on='vag')
@@ -98,33 +96,21 @@ reporthouronactivity['Delta_Offerto']=(reporthouronactivity['Offerte']/reporthou
 reporthouronactivity=reporthouronactivity.drop(['Unnamed: 0', 'T.A.','Livello di Servizio %','% Cleared','hour'], axis=1) #export rende
 reporthouronactivity.to_excel('output/reporthouronactivity.xlsx')
 
-#print(reporthouronfcst)
-print(reporthouronactivity)
+#print(reporthouronactivity)
 
 reporthouronfcst = reporthouronfcst.cumsum()
 
-#reporthouronfcst.plot();
-
 dayrealmob=pd.read_excel('service/dayrealmob.xlsx')
-
-#dayforecastmob[today].plot(kind = 'line')
-#dayrealmob[today].plot(kind = 'line')
-
-#dayforecastmob=dayforecastmob.set_index("hour")
-#dayrealmob=dayrealmob.set_index("hour")
 
 dayrealmob.rename(columns={today: "Offerte"}, inplace=True)
 
 dayrealmob=dayrealmob.set_index('hour')
 
-fig, axs = plt.subplots(1)
+#fig, axs = plt.subplots(1)
 
 plt.plot(dayforecastmob[today])
 plt.plot(dayrealmob['Offerte'])
 plt.legend(['forecast','real'])
 plt.title('Mobile POST')
 
-
-
 plt.show()
-plt.gcf().canvas.set_window_title('This title does not last')
