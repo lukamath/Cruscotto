@@ -7,6 +7,14 @@ from datetime import datetime, timedelta
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotview import view
+import saveashtml
+import schedule
+import time
+
+#salvataggi integrati
+saveashtml.salvacode()
+saveashtml.salvaprod()
+#		*---*		#
 
 #scrittura corretta della fascia
 now = datetime.now()	
@@ -55,7 +63,6 @@ dayforecastmob.to_excel('output/dayforecastmob.xlsx')
 #	----------------------------	#
 
 
-
 #-----------------------------------------------------------------------------------
 #code = pd.read_excel('data_source/code.xlsx',skiprows=2)  #per salvataggio di Rende
 #code.rename(columns={"&nbsp": "vag"}, inplace=True)
@@ -64,9 +71,6 @@ dayforecastmob.to_excel('output/dayforecastmob.xlsx')
 code = pd.read_excel('data_source/code.xlsx',skiprows=1)
 code.rename(columns={"Unnamed: 0_level_1": "vag"}, inplace=True)
 #-----------------------------------------------------------------------------------
-code.to_excel("service/codemodified.xlsx")
-print('*** Code ***')
-print(code)
 
 #match=listacode.merge(code, left_on='VAG Instradamento',right_on='vag')
 match=themap.merge(code, left_on='Coda',right_on='vag')
