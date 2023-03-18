@@ -103,7 +103,7 @@ reporthouronactivity.to_excel('output/reporthouronactivity.xlsx')
 #fig = plt.figure()
 
 def refresh_chart():
-    ax1 = fig.add_subplot(1,1,1)
+    ax1 = fig.add_subplot(1,1,1) #questa riga mi serve anche per cancellare eventuale linea riplottata su stesso timeframe 
     dayrealmob=pd.read_excel('service/dayrealmob.xlsx')
     dayrealmob.rename(columns={today: "Offerte"}, inplace=True)
     dayrealmob=dayrealmob.set_index('hour')
@@ -113,7 +113,7 @@ def refresh_chart():
     ax1.legend(['forecast','real'])
     fig.canvas.draw()
     fig.canvas.flush_events()
-    plt.pause(0.0001)
+    plt.pause(0.001)
     saveashtml.salvacode()
     saveashtml.salvaprod()
 
