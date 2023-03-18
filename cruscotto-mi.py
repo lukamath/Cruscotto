@@ -15,6 +15,9 @@ def salvataggiintegrati():
 	#salvataggi integrati
 	saveashtml.salvacode()
 	saveashtml.salvaprod()
+	url = "data_source/code.html"
+	table = pd.read_html(url)[0]
+	table.to_excel("data_source/code.xlsx")
 	
 #scrittura corretta della fascia
 now = datetime.now()    
@@ -45,12 +48,12 @@ fcstmap=minimap[['fcst_name', 'Report Activity']].copy()
 currentforecast=currentforecast.merge(fcstmap, on='fcst_name')
 currentforecast.to_excel("service/currentforecast.xlsx")
 
-url = "data_source/code.html"
-table = pd.read_html(url)[0]
-table.to_excel("data_source/code.xlsx") 
+salvataggiintegrati()
+# url = "data_source/code.html"
+# table = pd.read_html(url)[0]
+# table.to_excel("data_source/code.xlsx") 
 
 #   *** dataframe for charts ***    #
-
 #dayforecastonfcst=dayforecast.loc[dayforecast['fcst_name']!='COV-NOTTE']
 dayforecastonfcst=dayforecast.merge(fcstmap, on='fcst_name')
 dayforecastonfcst.to_excel('service/dayforecastonfcst.xlsx')
@@ -61,9 +64,7 @@ dayforecastmob=dayforecastonfcst.loc[dayforecastonfcst["Report Activity"]=='MOB'
 dayforecastmob=dayforecastmob.loc[dayforecastonfcst["Gestione CLT"]=='POST']
 dayforecastmob=dayforecastmob.groupby('hour').sum() 
 dayforecastmob.to_excel('output/dayforecastmob.xlsx')
-
 #   ----------------------------    #
-
 
 #-----------------------------------------------------------------------------------
 #code = pd.read_excel('data_source/code.xlsx',skiprows=2)  #per salvataggio di Rende
@@ -74,14 +75,15 @@ code = pd.read_excel('data_source/code.xlsx',skiprows=1)
 code.rename(columns={"Unnamed: 0_level_1": "vag"}, inplace=True)
 #-----------------------------------------------------------------------------------
 
-
 match=themap.merge(code, left_on='Coda',right_on='vag')
 match.rename(columns={"Riclassifica": "fcst_name"}, inplace=True)
 match.to_excel("service/match&timeframe.xlsx")
 
-currentforecastonname=currentforecast.groupby('fcst_name').sum()
+currentforecastonfcst=currentforecast.groupby('fcst_name').sum()
 currentforecastonactivity=currentforecast.groupby('Report Activity').sum()
-currentforecastonname.to_excel("service/currentforecastonname.xlsx")
+currentforecastonfcst["hour"]=inthour		#fill the column 'hour' with the current hour
+currentforecastonactivity["hour"]=inthour	#fill the column 'hour' with the current hour
+currentforecastonfcst.to_excel("service/currentforecastonfcst.xlsx")
 currentforecastonactivity.to_excel("service/currentforecastonactivity.xlsx")
 
 matchonfcst=match.groupby('fcst_name').sum()
@@ -89,7 +91,7 @@ matchonactivity=match.groupby('Report Activity').sum()
 matchonfcst.to_excel("service/matchonfcst.xlsx")
 matchonactivity.to_excel("service/matchonactivity.xlsx")
 
-reporthouronfcst=matchonfcst.merge(currentforecastonname,left_on='fcst_name',right_on='fcst_name')
+reporthouronfcst=matchonfcst.merge(currentforecastonfcst,left_on='fcst_name',right_on='fcst_name')
 reporthouronfcst['Delta_Offerto']=(reporthouronfcst['Offerte']/reporthouronfcst[today] - 1)*100
 reporthouronfcst=reporthouronfcst.drop(['Unnamed: 0', 'T.A.','Livello di Servizio %','% Cleared','hour'], axis=1) #export rende
 reporthouronfcst.to_excel('output/reporthouronfcst.xlsx')
@@ -100,12 +102,61 @@ reporthouronactivity['Delta_Offerto']=(reporthouronactivity['Offerte']/reporthou
 reporthouronactivity=reporthouronactivity.drop(['Unnamed: 0', 'T.A.','Livello di Servizio %','% Cleared','hour'], axis=1) #export rende
 reporthouronactivity.to_excel('output/reporthouronactivity.xlsx')
 
+#copy of current situation on activity
+pasthouronactivity=reporthouronactivity.copy()
+pasthouronactivity.to_excel('service/pasthouronactivity.xlsx')
+
+
 #fig = plt.figure()
+
+def realtime_data():
+	salvataggiintegrati()
+	code = pd.read_excel('data_source/code.xlsx',skiprows=1)
+	code.rename(columns={"Unnamed: 0_level_1": "vag"}, inplace=True)
+	match=themap.merge(code, left_on='Coda',right_on='vag')
+	match.rename(columns={"Riclassifica": "fcst_name"}, inplace=True)
+	match.to_excel("service/match&timeframe.xlsx")
+
+	matchonfcst=match.groupby('fcst_name').sum()
+	matchonactivity=match.groupby('Report Activity').sum()
+	matchonfcst.to_excel("service/matchonfcst.xlsx")
+	matchonactivity.to_excel("service/matchonactivity.xlsx")
+
+	reporthouronfcst=matchonfcst.merge(currentforecastonfcst,left_on='fcst_name',right_on='fcst_name')
+	reporthouronfcst['Delta_Offerto']=(reporthouronfcst['Offerte']/reporthouronfcst[today] - 1)*100
+	reporthouronfcst=reporthouronfcst.drop(['Unnamed: 0', 'T.A.','Livello di Servizio %','% Cleared','hour'], axis=1) #export rende
+	reporthouronfcst.to_excel('output/reporthouronfcst.xlsx')
+	reporthouronfcst = reporthouronfcst.cumsum()
+
+	reporthouronactivity=matchonactivity.merge(currentforecastonactivity,left_on='Report Activity', right_on='Report Activity')
+	reporthouronactivity['Delta_Offerto']=(reporthouronactivity['Offerte']/reporthouronactivity[today] - 1)*100
+	reporthouronactivity=reporthouronactivity.drop(['Unnamed: 0', 'T.A.','Livello di Servizio %','% Cleared','hour'], axis=1) #export rende
+	reporthouronactivity.to_excel('output/reporthouronactivity.xlsx')
+
+	pasthouronactivity = pd.read_excel('service/pasthouronactivity.xlsx')
+
+	deltahouronactivity=reporthouronactivity.subtract(pasthouronactivity)
+	deltahouronactivity.to_excel('service/deltahouronactivity.xlsx')
+
+	#copy of current situation on activity
+	pasthouronactivity=reporthouronactivity.copy()
+	pasthouronactivity.to_excel('service/pasthouronactivity.xlsx')
 
 def refresh_chart():
     ax1 = fig.add_subplot(1,1,1) #questa riga mi serve anche per cancellare eventuale linea riplottata su stesso timeframe 
     dayrealmob=pd.read_excel('service/dayrealmob.xlsx')
     dayrealmob.rename(columns={today: "Offerte"}, inplace=True)
+    
+    #indexmob = reporthouronactivity[reporthouronactivity['Report Activity'] == 'MOB'].index
+    indexmob = 4
+    #indexmobhour = dayrealmob[dayrealmob['hour'] == inthour].index 
+    indexmobhour=10
+    i=dayrealmob['Offerte'][indexmobhour]
+    j=reporthouronactivity['Offerte'][indexmob]
+    #dayrealmob=dayrealmob.replace(i,j)
+    dayrealmob['Offerte'][indexmobhour]=j
+    dayrealmob.to_excel('service/dayrealmob.xlsx')
+
     dayrealmob=dayrealmob.set_index('hour')
     ax1.plot(dayforecastmob[today])
     ax1.plot(dayrealmob['Offerte'])
@@ -114,11 +165,11 @@ def refresh_chart():
     fig.canvas.draw()
     fig.canvas.flush_events()
     plt.pause(0.001)
-    saveashtml.salvacode()
-    saveashtml.salvaprod()
+    #saveashtml.salvacode()
+    #saveashtml.salvaprod()
 
-schedule.every(13).seconds.do(refresh_chart)
-#schedule.every(5).seconds.do(salvataggiintegrati)
+schedule.every(30).seconds.do(refresh_chart)
+schedule.every(13).seconds.do(realtime_data)
 
 while True:
     schedule.run_pending()
