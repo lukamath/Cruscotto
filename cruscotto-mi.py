@@ -157,7 +157,8 @@ def refresh_chart():
     print(j)
     print(reporthouronactivity['Offerte'][indexmob+1])
     #dayrealmob=dayrealmob.replace(i,j)
-    dayrealmob['Offerte'][indexmobhour]=j
+    #dayrealmob['Offerte'][indexmobhour]=j
+    dayrealmob.loc['Offerte',indexmobhour]=j
     dayrealmob.to_excel('service/dayrealmob.xlsx')
 
     dayrealmob=dayrealmob.set_index('hour')
