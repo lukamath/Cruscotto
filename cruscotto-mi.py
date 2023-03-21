@@ -138,21 +138,24 @@ def realtime_data():
 	deltahouronactivity=reporthouronactivity.subtract(pasthouronactivity)
 	deltahouronactivity.to_excel('service/deltahouronactivity.xlsx')
 
+def saveprevious():
 	#copy of current situation on activity
 	pasthouronactivity=reporthouronactivity.copy()
 	pasthouronactivity.to_excel('service/pasthouronactivity.xlsx')
 
 def refresh_chart():
     ax1 = fig.add_subplot(1,1,1) #questa riga mi serve anche per cancellare eventuale linea riplottata su stesso timeframe 
-    dayrealmob=pd.read_excel('service/dayrealmob.xlsx')
+    dayrealmob=pd.read_excel('service/dayrealmob.xlsx', usecols=[1,2])
     dayrealmob.rename(columns={today: "Offerte"}, inplace=True)
     
     #indexmob = reporthouronactivity[reporthouronactivity['Report Activity'] == 'MOB'].index
-    indexmob = 4
-    #indexmobhour = dayrealmob[dayrealmob['hour'] == inthour].index 
-    indexmobhour=10
+    indexmob = 3
+    indexmobhour = dayrealmob[dayrealmob['hour'] == inthour].index 
+    #indexmobhour=10
     i=dayrealmob['Offerte'][indexmobhour]
     j=reporthouronactivity['Offerte'][indexmob]
+    print(j)
+    print(reporthouronactivity['Offerte'][indexmob+1])
     #dayrealmob=dayrealmob.replace(i,j)
     dayrealmob['Offerte'][indexmobhour]=j
     dayrealmob.to_excel('service/dayrealmob.xlsx')
@@ -170,6 +173,7 @@ def refresh_chart():
 
 schedule.every(30).seconds.do(refresh_chart)
 schedule.every(13).seconds.do(realtime_data)
+schedule.every(113).seconds.do(saveprevious)
 
 while True:
     schedule.run_pending()
