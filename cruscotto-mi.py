@@ -106,7 +106,6 @@ reporthouronactivity.to_excel('output/reporthouronactivity.xlsx')
 pasthouronactivity=reporthouronactivity.copy()
 pasthouronactivity.to_excel('service/pasthouronactivity.xlsx')
 
-
 #fig = plt.figure()
 
 def realtime_data():
@@ -143,40 +142,65 @@ def saveprevious():
 	pasthouronactivity=reporthouronactivity.copy()
 	pasthouronactivity.to_excel('service/pasthouronactivity.xlsx')
 
-def refresh_chart():
-    ax1 = fig.add_subplot(1,1,1) #questa riga mi serve anche per cancellare eventuale linea riplottata su stesso timeframe 
-    dayrealmob=pd.read_excel('service/dayrealmob.xlsx', usecols=[1,2])
-    dayrealmob.rename(columns={today: "Offerte"}, inplace=True)
-    
-    reporthouronactivity=pd.read_excel('output/reporthouronactivity.xlsx')
-    #indexmob = reporthouronactivity[reporthouronactivity['Report Activity'] == 'MOB'].index
-    indexmob = 3
-    indexmobhour = dayrealmob[dayrealmob['hour'] == inthour].index 
-    #indexmobhour=10
-    i=dayrealmob['Offerte'][indexmobhour]
-    j=reporthouronactivity['Offerte'][indexmob]
-    print(j)
-    print(reporthouronactivity['Offerte'][indexmob+1])
-    #dayrealmob=dayrealmob.replace(i,j)
-    dayrealmob['Offerte'][indexmobhour]=j
-    #dayrealmob.loc['Offerte',indexmobhour]=j   #vedi.loc 
-    dayrealmob.to_excel('service/dayrealmob.xlsx')
+def save_framereport():
+	now = datetime.now()    
+	minframe=now.strftime("%H-%M")
+	currentdate=now.strftime("%Y-%m-%d")
+	framereport=reporthouronactivity.copy()
+	framereport.to_excel('output/framereport/code_'+currentdate+"-"+minframe+ '.xlsx')
 
-    dayrealmob=dayrealmob.set_index('hour')
-    ax1.plot(dayforecastmob[today])
-    ax1.plot(dayrealmob['Offerte'])
-    plt.title('Mobile POST')
-    ax1.legend(['forecast','real'])
-    fig.canvas.draw()
-    fig.canvas.flush_events()
-    plt.pause(0.001)
-    #saveashtml.salvacode()
-    #saveashtml.salvaprod()
+def refresh_chart():
+	
+	plt.clf()
+	fig.set_figwidth(13)
+	#x =[8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+	#plt.tick_params('x', labelsize=6)
+	ax1 = fig.add_subplot(1,1,1) #questa riga mi serve anche per cancellare eventuale linea riplottata su stesso timeframe 
+	#ax1.set_xlim(8, 24)
+	dayrealmob=pd.read_excel('service/dayrealmob.xlsx', usecols=[1,2])
+	dayrealmob.rename(columns={today: "Offerte"}, inplace=True)
+    
+	reporthouronactivity=pd.read_excel('output/reporthouronactivity.xlsx')
+    #indexmob = reporthouronactivity[reporthouronactivity['Report Activity'] == 'MOB'].index
+	indexmob = 3
+	indexmobhour = dayrealmob[dayrealmob['hour'] == inthour].index 
+	#indexmobhour=10
+	i=reporthouronactivity['Offerte'][indexmob]-pasthouronactivity['Offerte'][indexmob]
+	j=reporthouronactivity['Offerte'][indexmob]
+	print('inthour: ' + str(inthour))
+	print('indexmobhour: ' + str([indexmobhour]))
+	print('previous: ' + str(pasthouronactivity['Offerte'][indexmob]))
+	print('current: ' + str(reporthouronactivity['Offerte'][indexmob]))
+	print(j)
+	print(i)
+	#print(reporthouronactivity['Offerte'][indexmob+1])
+	#dayrealmob=dayrealmob.replace(i,j)
+	dayrealmob['Offerte'][indexmobhour]=i
+	#dayrealmob.loc['Offerte',indexmobhour]=j   #vedi.loc 
+	dayrealmob.to_excel('service/dayrealmob.xlsx')
+
+	dayrealmob=dayrealmob.set_index('hour')
+	ax1.plot(dayforecastmob[today])
+	ax1.plot(dayrealmob['Offerte'])
+	plt.title('Mobile POST')
+	ax1.legend(['forecast','real'])
+	fig.canvas.draw()
+	fig.canvas.flush_events()
+	plt.pause(0.001)
+	#saveashtml.salvacode()
+	#saveashtml.salvaprod()
 
 #vedi --> https://schedule.readthedocs.io/en/stable/examples.html
 schedule.every(30).seconds.do(refresh_chart)
 schedule.every(13).seconds.do(realtime_data)
 schedule.every().hour.at(":00").do(saveprevious) # Run saveprevious every hour at the 00 minute
+schedule.every().hour.at(":00").do(save_framereport) 
+schedule.every().hour.at(":10").do(save_framereport) 
+schedule.every().hour.at(":20").do(save_framereport) 
+schedule.every().hour.at(":30").do(save_framereport) 
+schedule.every().hour.at(":40").do(save_framereport) # Run saveprevious every hour at the 00 minute
+schedule.every().hour.at(":50").do(save_framereport) # Run saveprevious every hour at the 00 minute
+
 
 while True:
     schedule.run_pending()
