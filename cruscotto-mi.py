@@ -148,6 +148,7 @@ def refresh_chart():
     dayrealmob=pd.read_excel('service/dayrealmob.xlsx', usecols=[1,2])
     dayrealmob.rename(columns={today: "Offerte"}, inplace=True)
     
+    reporthouronactivity=pd.read_excel('output/reporthouronactivity.xlsx')
     #indexmob = reporthouronactivity[reporthouronactivity['Report Activity'] == 'MOB'].index
     indexmob = 3
     indexmobhour = dayrealmob[dayrealmob['hour'] == inthour].index 
@@ -157,8 +158,8 @@ def refresh_chart():
     print(j)
     print(reporthouronactivity['Offerte'][indexmob+1])
     #dayrealmob=dayrealmob.replace(i,j)
-    #dayrealmob['Offerte'][indexmobhour]=j
-    dayrealmob.loc['Offerte',indexmobhour]=j
+    dayrealmob['Offerte'][indexmobhour]=j
+    #dayrealmob.loc['Offerte',indexmobhour]=j   #vedi.loc 
     dayrealmob.to_excel('service/dayrealmob.xlsx')
 
     dayrealmob=dayrealmob.set_index('hour')
@@ -172,9 +173,10 @@ def refresh_chart():
     #saveashtml.salvacode()
     #saveashtml.salvaprod()
 
+#vedi --> https://schedule.readthedocs.io/en/stable/examples.html
 schedule.every(30).seconds.do(refresh_chart)
 schedule.every(13).seconds.do(realtime_data)
-schedule.every(113).seconds.do(saveprevious)
+schedule.every().hour.at(":00").do(saveprevious) # Run saveprevious every hour at the 00 minute
 
 while True:
     schedule.run_pending()
