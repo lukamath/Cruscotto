@@ -153,8 +153,6 @@ def refresh_chart():
 	
 	plt.clf()
 	fig.set_figwidth(13)
-	#x =[8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
-	#plt.tick_params('x', labelsize=6)
 	ax1 = fig.add_subplot(1,1,1) #questa riga mi serve anche per cancellare eventuale linea riplottata su stesso timeframe 
 	#ax1.set_xlim(8, 24)
 	dayrealmob=pd.read_excel('service/dayrealmob.xlsx', usecols=[1,2])
