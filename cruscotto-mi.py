@@ -28,7 +28,7 @@ later_time=later.strftime("%H:%M:%S")
 timeframe=now.strftime("%H")+ ":00-" + str(later.strftime("%H")) +":00"
 hour=now.strftime("%H")
 inthour=int(hour)
-  
+
 plt.ion()
 fig = plt.figure()
 ax1 = fig.add_subplot(111)
@@ -150,21 +150,22 @@ def save_framereport():
 	framereport.to_excel('output/framereport/code_'+currentdate+"-"+minframe+ '.xlsx')
 
 def refresh_chart():
-	
+	now = datetime.now()  
 	plt.clf()
 	fig.set_figwidth(13)
 	ax1 = fig.add_subplot(1,1,1) #questa riga mi serve anche per cancellare eventuale linea riplottata su stesso timeframe 
 	#ax1.set_xlim(8, 24)
 	dayrealmob=pd.read_excel('service/dayrealmob.xlsx', usecols=[1,2])
 	dayrealmob.rename(columns={today: "Offerte"}, inplace=True)
-    
 	reporthouronactivity=pd.read_excel('output/reporthouronactivity.xlsx')
     #indexmob = reporthouronactivity[reporthouronactivity['Report Activity'] == 'MOB'].index
 	indexmob = 3
-	indexmobhour = dayrealmob[dayrealmob['hour'] == inthour].index 
+	indexmobhour = dayrealmob[dayrealmob['hour'] == int(now.strftime("%H"))].index 
 	#indexmobhour=10
 	i=reporthouronactivity['Offerte'][indexmob]-pasthouronactivity['Offerte'][indexmob]
 	j=reporthouronactivity['Offerte'][indexmob]
+	thismin=now.strftime("%M")
+	print('this minute is: ' + thismin)
 	print('inthour: ' + str(inthour))
 	print('indexmobhour: ' + str([indexmobhour]))
 	print('previous: ' + str(pasthouronactivity['Offerte'][indexmob]))
@@ -184,10 +185,8 @@ def refresh_chart():
 	ax1.legend(['forecast','real'])
 	fig.canvas.draw()
 	fig.canvas.flush_events()
-	plt.pause(0.001)
-	#saveashtml.salvacode()
-	#saveashtml.salvaprod()
-
+	plt.pause(0.013)
+	
 #vedi --> https://schedule.readthedocs.io/en/stable/examples.html
 schedule.every(30).seconds.do(refresh_chart)
 schedule.every(13).seconds.do(realtime_data)
