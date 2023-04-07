@@ -35,7 +35,7 @@ ax1 = fig.add_subplot(111)
 
 forecast = pd.read_excel('data_source/forecast.xlsx', sheet_name="x")
 dayforecast = forecast[['fcst_name', 'Gestione CLT','timeframe',today]].copy()
-dayforecast["hour"]=dayforecast["timeframe"].str[:2].astype(int)
+dayforecast["hour"]=dayforecast["timeframe"].str[6:8].astype(int)
 dayforecast.to_excel("service/dayforecast.xlsx")
 # currentforecast e' il mio forecast fino all'ora corrente
 currentforecast=dayforecast.loc[dayforecast["hour"]<=inthour]   
@@ -103,8 +103,9 @@ reporthouronactivity=reporthouronactivity.drop(['Unnamed: 0', 'T.A.','Livello di
 reporthouronactivity.to_excel('output/reporthouronactivity.xlsx')
 
 #copy of current situation on activity
-pasthouronactivity=reporthouronactivity.copy()
-pasthouronactivity.to_excel('service/pasthouronactivity.xlsx')
+#pasthouronactivity=reporthouronactivity.copy()
+#pasthouronactivity.to_excel('service/pasthouronactivity.xlsx')
+pasthouronactivity = pd.read_excel('service/pasthouronactivity.xlsx')
 
 #fig = plt.figure()
 
@@ -160,7 +161,7 @@ def refresh_chart():
 	reporthouronactivity=pd.read_excel('output/reporthouronactivity.xlsx')
     #indexmob = reporthouronactivity[reporthouronactivity['Report Activity'] == 'MOB'].index
 	indexmob = 3
-	indexmobhour = dayrealmob[dayrealmob['hour'] == int(now.strftime("%H"))].index 
+	indexmobhour = dayrealmob[dayrealmob['hour'] == int(now.strftime("%H"))+1].index 
 	#indexmobhour=10
 	i=reporthouronactivity['Offerte'][indexmob]-pasthouronactivity['Offerte'][indexmob]
 	j=reporthouronactivity['Offerte'][indexmob]
