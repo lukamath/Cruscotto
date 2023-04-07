@@ -63,6 +63,9 @@ dayforecastonactivity.to_excel('service/dayforecastonactivity.xlsx')
 dayforecastmob=dayforecastonfcst.loc[dayforecastonfcst["Report Activity"]=='MOB']
 dayforecastmob=dayforecastmob.loc[dayforecastonfcst["Gestione CLT"]=='POST']
 dayforecastmob=dayforecastmob.groupby('hour').sum() 
+#--> add first row as starting point with 0 calls at 8.00
+#		*write code here* 
+#<-- ***
 dayforecastmob.to_excel('output/dayforecastmob.xlsx')
 #   ----------------------------    #
 
